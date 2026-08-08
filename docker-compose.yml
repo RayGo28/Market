@@ -1,0 +1,69 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15-alpine
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    environment:
+      - TZ=Europe/Kosice
+      - POSTGRES_DB=engine_db
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=password
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+
+  web:
+    build: ./backend
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - ./backend:/code
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+      - redis
+    working_dir: /code
+  
+  worker:
+    build: ./backend
+    command: celery -A config worker --loglevel=info
+    volumes:
+      - ./backend:/code
+    working_dir: /code
+    depends_on:
+      - db
+      - redis
+    environment:
+      - TZ=Europe/Bratislava
+      - PYTHONPATH=/code
+
+  beat:
+    build: ./backend
+    command: celery -A config beat --loglevel=info
+    volumes:
+      - ./backend:/code
+    working_dir: /code
+    depends_on:
+      - db
+      - redis
+    environment:
+      - TZ=Europe/Bratislava
+      - PYTHONPATH=/code
+
+  flower:
+    build: ./backend
+    command: celery -A config flower --port=5555
+    ports:
+      - "5555:5555"
+    depends_on:
+      - redis
+      - worker
+    environment:
+      - CELERY_BROKER_URL=redis://redis:6379/0
+
+volumes:
+  postgres_data:

@@ -1,0 +1,8 @@
+Django>=4.2
+djangorestframework
+psycopg2-binary
+celery
+redis
+requests
+django-filter
+flower 

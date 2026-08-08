@@ -1,0 +1,47 @@
+{% extends 'main/layout.html' %}
+{% load humanize %}
+
+{% block title %}Крипто Дашборд{% endblock %}
+
+{% block content %}
+
+
+<div class="container">
+    <div class="market-header">
+        <h1>Market Overview</h1>
+        <p class="text-muted">Останнє оновлення: щойно</p>
+    </div>
+
+    <div class="crypto-grid">
+        {% for coin in cryptos %}
+        <a href="{% url 'crypto_detail' symbol=coin.symbol %}" class="coin-card-link">
+            <div class="coin-card">
+                <div class="coin-info">
+                    <div class="coin-name-wrapper">
+                        <span class="coin-symbol">{{ coin.symbol }}</span>
+                        <span class="coin-name">{{ coin.name }}</span>
+                    </div>
+                    <div class="coin-price-info">
+                        <div class="coin-price">${{ coin.price|intcomma }}</div>
+                        <div class="coin-change {% if coin.trend == 'up' %}up{% else %}down{% endif %}">
+                            {% if coin.trend == 'up' %}+{% endif %}{{ coin.change_pct }}%
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="sparkline">
+                    <svg viewBox="0 0 100 30" preserveAspectRatio="none" style="width: 100%; height: 100%;">
+                        <path d="M0,25 Q5,25 10,20 T20,22 T30,15 T40,18 T50,10 T60,12 T70,5 T80,8 T90,2 T100,5" 
+                              fill="none" 
+                              stroke="{% if coin.trend == 'up' %}#10b981{% else %}#ef4444{% endif %}" 
+                              stroke-width="2"
+                              stroke-linecap="round"
+                              stroke-linejoin="round"/>
+                    </svg>
+                </div>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

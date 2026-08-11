@@ -95,16 +95,15 @@ AUTH_PASSWORD_VALIDATORS = [
 
 
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'en-gb'
+TIME_ZONE = 'Europe/Kyiv'
 
-TIME_ZONE = 'Europe/Bratislava'
-
-USE_I18N = True
-
+USE_I18N = False
 USE_TZ = True
 
-
-
+TIME_FORMAT = 'H:i'
+DATETIME_FORMAT = 'd M Y, H:i'
+SHORT_DATETIME_FORMAT = 'd.m.Y H:i'
 
 STATIC_URL = 'static/'
 

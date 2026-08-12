@@ -40,15 +40,15 @@ def fetch_eth_price(self):
 
 
 @shared_task(**TASK_SETTINGS)
-def fetch_tether_price(self):
-    url = "https://api.coingecko.com/api/v3/simple/price?ids=tether&vs_currencies=usd&precision=2"
+def fetch_BNB_price(self):
+    url = "https://api.coingecko.com/api/v3/simple/price?ids=binancecoin&vs_currencies=usd&precision=2"
     response = requests.get(url)
     data = response.json()
     
-    tether = data.get("tether")
-    if tether:
-        current_price = tether["price"]
-        new_entry = CryptoPrice.object.create(name="Tether",symbol="USDT", price=current_price)
+    bnb = data.get("binancecoin")
+    if bnb:
+        current_price = bnb["usd"]
+        new_entry = CryptoPrice.objects.create(name="Binance Coin",symbol="BNB", price=current_price)
         
         return f"Ціна {current_price} збережена в базу о {new_entry.timestamp}"
-    return "Помилка: не вдалося отримати дані про тезер."
+    return "Помилка: не вдалося отримати дані про Binance Coin."

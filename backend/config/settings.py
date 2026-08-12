@@ -1,6 +1,8 @@
 from celery.schedules import crontab # type: ignore
 from pathlib import Path
 
+
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -126,7 +128,11 @@ CELERY_BEAT_SCHEDULE = {
     'fetch-eth-every-2-minute': {
         'task': 'watcher.tasks.fetch_eth_price', 
         'schedule': 120,
-    }
+    },
+    'fetch-bnb-every-2-minute': {
+        'task': 'watcher.tasks.fetch_BNB_price', 
+        'schedule': 120,
+    },
 }
 
 CELERY_BROKER_URL = 'redis://redis:6379/0'

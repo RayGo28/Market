@@ -1,25 +1,16 @@
 from celery.schedules import crontab # type: ignore
 from pathlib import Path
+from decouple import config
 
+COINGECKO_API_KEY = config('COINGECKO_API_KEY', default='')
 
-
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
-
-# SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-1&(_w3gopt9!6_6*#twn6af02ru-_k8obqzdv$)0qnmb$%8&gl'
 
-# SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
 ALLOWED_HOSTS = []
-
-
-# Application definition
 
 INSTALLED_APPS = [
     'core',
@@ -121,18 +112,10 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 CELERY_BEAT_SCHEDULE = {
-    'fetch-btc-every-2-minute': {
-        'task': 'watcher.tasks.fetch_btc_price', 
+    'fetch_crypto_prices': {
+        'task': 'watcher.fetch_crypto_prices', 
         'schedule': 120,
-    },
-    'fetch-eth-every-2-minute': {
-        'task': 'watcher.tasks.fetch_eth_price', 
-        'schedule': 120,
-    },
-    'fetch-bnb-every-2-minute': {
-        'task': 'watcher.tasks.fetch_BNB_price', 
-        'schedule': 120,
-    },
+    }
 }
 
 CELERY_BROKER_URL = 'redis://redis:6379/0'

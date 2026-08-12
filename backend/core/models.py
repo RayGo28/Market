@@ -1,16 +1,37 @@
 from django.db import models
 from django.utils import timezone
-class CryptoPrice(models.Model):
-    name = models.CharField(max_length=20, db_index=True)
-    symbol = models.CharField(max_length=10, db_index=True)
-    price = models.DecimalField(max_digits=20, decimal_places=8)
-    timestamp = models.DateTimeField(default=timezone.now, db_index=True)
 
+class Coin(models.Model):
+    coin_id = models.CharField(max_length=50,unique=True)
+    name = models.CharField(max_length=100)
+    symbol = models.CharField(max_length=10)
+    max_supply = models.DecimalField(max_digits=38, decimal_places=18, null=True, blank=True)
+    is_active = models.BooleanField(default=True)
+    
+    class Meta:
+        verbose_name = "Coin"
+        verbose_name_plural = "Coins"
+    
+    def __str__(self):
+        return f"{self.name} ({self.symbol})"
+    
+class PriceHistory(models.Model):
+    coin = models.ForeignKey(Coin, on_delete=models.CASCADE, related_name="prices")
+    
+    price = models.DecimalField(max_digits=20, decimal_places=8, null=True,blank=True)
+    market_cap = models.DecimalField(max_digits=25, decimal_places=2, null=True,blank=True)
+    volume_24h = models.DecimalField(max_digits=25, decimal_places=2, null=True,blank=True)
+    
+    timestamp = models.DateTimeField(default=timezone.now, db_index=True)
+    
     class Meta:
         ordering = ['-timestamp']
         indexes = [
-            models.Index(fields=['symbol', '-timestamp']),
+            models.Index(fields=['coin', '-timestamp']),
         ]
+        verbose_name = "Price History"
+        verbose_name_plural = "Price Histories"
 
     def __str__(self):
-        return f"{self.name}({self.symbol}) - {self.price} at {self.timestamp}"
+        return f"{self.coin.symbol} | {self.price} | {self.timestamp.strftime('%H:%M:%S')}"
+    

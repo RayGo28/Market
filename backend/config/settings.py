@@ -1,6 +1,6 @@
 from celery.schedules import crontab # type: ignore
 from pathlib import Path
-from decouple import config
+from decouple import config # type: ignore
 
 COINGECKO_API_KEY = config('COINGECKO_API_KEY', default='')
 
@@ -111,12 +111,12 @@ STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.ManifestStaticFilesSto
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
-CELERY_BEAT_SCHEDULE = {
-    'fetch_crypto_prices': {
-        'task': 'watcher.fetch_crypto_prices', 
-        'schedule': 120,
-    }
-}
+#CELERY_BEAT_SCHEDULE = {
+    #'fetch_crypto_prices': {
+        #'task': 'watcher.fetch_crypto_prices', 
+        #'schedule': 120,
+    #},
+#}
 
 CELERY_BROKER_URL = 'redis://redis:6379/0'
 CELERY_RESULT_BACKEND = 'redis://redis:6379/0'

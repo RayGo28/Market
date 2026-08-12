@@ -1,17 +1,14 @@
 from django.contrib import admin
 from django.utils import timezone
-from .models import CryptoPrice
+from .models import Coin, PriceHistory
 
 
-@admin.register(CryptoPrice)
-class CryptoPriceAdmin(admin.ModelAdmin):
-    list_display = ('name', 'symbol', 'price', 'timestamp_24')
-    list_filter = ('name', 'symbol', 'timestamp')
-
-    def timestamp_24(self, obj):
-        ts = timezone.localtime(obj.timestamp)
-        return ts.strftime('%d %b %Y, %H:%M')
-
-    timestamp_24.short_description = 'Timestamp'
-    timestamp_24.admin_order_field = 'timestamp'
+@admin.register(Coin)
+class CoinAdmin(admin.ModelAdmin):
+    list_display = ("coin_id", "name", "symbol", "max_supply", "is_active")
+    list_filter = ('name', 'symbol')
     
+@admin.register(PriceHistory)
+class PriceHistoryAdmin(admin.ModelAdmin):
+    list_display = ("coin", "price", "timestamp")
+    list_filter = ("coin", "timestamp")

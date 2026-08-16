@@ -5,7 +5,7 @@ class Coin(models.Model):
     coin_id = models.CharField(max_length=50,unique=True)
     name = models.CharField(max_length=100)
     symbol = models.CharField(max_length=10)
-    max_supply = models.DecimalField(max_digits=38, decimal_places=18, null=True, blank=True)
+    max_supply = models.DecimalField(max_digits=38, decimal_places=2, null=True, blank=True)
     is_active = models.BooleanField(default=True)
     
     class Meta:
@@ -20,8 +20,8 @@ class PriceHistory(models.Model):
     
     price = models.DecimalField(max_digits=20, decimal_places=8, null=True,blank=True)
     market_cap = models.DecimalField(max_digits=25, decimal_places=2, null=True,blank=True)
-    volume_24h = models.DecimalField(max_digits=25, decimal_places=2, null=True,blank=True)
-    
+    total_volume = models.DecimalField(max_digits=25, decimal_places=2, null=True,blank=True)
+    price_change_percentage_24h = models.DecimalField(max_digits=10, decimal_places=2, null=True,blank=True)
     timestamp = models.DateTimeField(default=timezone.now, db_index=True)
     
     class Meta:
@@ -33,5 +33,8 @@ class PriceHistory(models.Model):
         verbose_name_plural = "Price Histories"
 
     def __str__(self):
-        return f"{self.coin.symbol} | {self.price} | {self.timestamp.strftime('%H:%M:%S')}"
+        price_str = f"${self.price}" if self.price is not None else "No Price"
+        time_str = self.timestamp.strftime('%Y-%m-%d %H:%M:%S') if self.timestamp else ""
+        change_str = f"{self.price_change_percentage_24h}%" if self.price_change_percentage_24h is not None else "0.00%"
+        return f"{self.coin.symbol} | {price_str} | {time_str} | {change_str}"
     

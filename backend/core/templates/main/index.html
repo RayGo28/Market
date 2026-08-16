@@ -9,7 +9,7 @@
     </h1>
     <div class="grid">
         {% for coin in coins %}
-            <a class="card" href="" title="{{ coin.symbol|upper }}">
+            <a class="card" href="{% url 'crypto_detail' symbol=coin.symbol %}" title="{{ coin.symbol|upper }}">
                 <div class="left">
                     <div class="logo">{{ coin.symbol|slice:":3"|upper }}</div>
                     <div class="meta">

@@ -10,5 +10,5 @@ class CoinAdmin(admin.ModelAdmin):
     
 @admin.register(PriceHistory)
 class PriceHistoryAdmin(admin.ModelAdmin):
-    list_display = ("coin", "price", "timestamp")
+    list_display = ("coin", "price","market_cap","total_volume","price_change_percentage_24h", "timestamp")
     list_filter = ("coin", "timestamp")

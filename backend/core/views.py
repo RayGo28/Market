@@ -1,23 +1,17 @@
 from django.shortcuts import render,get_object_or_404
 from .models import Coin, PriceHistory
-from django.db.models import Avg, Max, Min, Count
+from django.db.models import Avg, Max, Min, Count, Prefetch
 
 def index(request):
-    qs = Coin.objects.all()
+    latest_history = PriceHistory.objects.order_by('coin', '-timestamp').distinct('coin')
 
-    data = {
-        "coins": qs
-    }
+    coins = Coin.objects.filter(is_active=True).prefetch_related(
+        Prefetch('market_data', queryset=latest_history)
+    )
 
-    return render(request, 'main/index.html', data)
+    return render(request, 'main/index.html', {"coins": coins})
 
-def crypto_detail(request, symbol):
 
-    coin = get_object_or_404(Coin.objects.prefetch_related('all'), symbol__iexact=symbol)
-
-    return render(request, "main/crypto_detail.html", {"coin": coin})
-    
-    
     
 
 

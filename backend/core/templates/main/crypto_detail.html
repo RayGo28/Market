@@ -9,13 +9,13 @@
 <div class="detail-container">
     <a href="{% url 'index' %}" class="back-btn">← Повернутися до списку</a>
     
-    {% if crypto %}
+    {% if coin %}
     <div class="detail-header">
         <div class="detail-title">
             <h1>{{ crypto.symbol }} <span class="badge">Crypto</span></h1>
         </div>
         <div class="detail-price-block">
-            <p class="main-price">${{ crypto.price|intcomma }}</p>
+            <p class="main-price">${{ data.price|intcomma }}</p>
             <p class="timestamp">Останнє оновлення: {{ crypto.timestamp|date:"d M Y, H:i:s" }}</p>
         </div>
     </div>

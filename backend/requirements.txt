@@ -7,3 +7,4 @@ requests
 django-filter
 flower 
 python-decouple
+django-redis

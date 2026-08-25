@@ -39,7 +39,7 @@ class PriceHistory(models.Model):
         return f"{self.coin.symbol} | {price_str} | {time_str} | {change_str}"
     
 class CoinCurrentData(models.Model):
-    coin = models.OneToOneField(Coin,on_delete=models.CASCADE)
+    coin = models.OneToOneField(Coin,on_delete=models.CASCADE,related_name='current_data')
     price = models.DecimalField(max_digits=20, decimal_places=8, null=True,blank=True)
     market_cap = models.DecimalField(max_digits=25, decimal_places=2, null=True,blank=True)
     total_volume = models.DecimalField(max_digits=25, decimal_places=2, null=True,blank=True)

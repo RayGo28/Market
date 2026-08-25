@@ -1,7 +1,14 @@
 from rest_framework import serializers
-from .models import CryptoPrice
+from .models import Coin,CoinCurrentData
 
-class CryptoPriceSerializer(serializers.ModelSerializer):
+
+class CoinCurrentDataSerializer(serializers.ModelSerializer):
     class Meta:
-        model = CryptoPrice
-        fields = "__all__"
+        model = CoinCurrentData
+        fields = "id", "price", "market_cap", "total_volume","price_change_percentage_24h", "timestamp"
+        
+class CoinSerializer(serializers.ModelSerializer):
+    current_data = CoinCurrentDataSerializer(read_only=True) 
+    class Meta:
+        model = Coin
+        fields = ["gecko_id", "name", "symbol", "max_supply", "is_active", "current_data"]

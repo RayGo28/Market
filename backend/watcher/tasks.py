@@ -1,8 +1,10 @@
 import logging
+from core.serializers import CoinSerializer
 from celery import shared_task  # type: ignore
 import requests # type: ignore
 from core.models import Coin, PriceHistory,CoinCurrentData
 from django.conf import settings
+from django.core.cache import cache
 
 logger = logging.getLogger(__name__)
 
@@ -71,7 +73,13 @@ def fetch_cryptocurrency(self):
                             update_fields=update_fields
                         )
         logger.info(f"Data is updated for {len(records_data)} coins.")
- 
+
+        updated_coins = Coin.objects.filter(is_active=True).select_related('current_data')
+        serializer = CoinSerializer(updated_coins, many=True)
+        
+        cache.set('coin_list_cache', serializer.data, timeout=65)
+    
+    
     return f"Fetched and stored price history for {len(records_data)} coins out of {len(active_coins)}."
 
     

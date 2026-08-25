@@ -43,7 +43,6 @@
       </article>
     </section>
 
-    <!-- Таблиця монет -->
     <section class="panel" aria-label="Список криптовалют">
       <div class="panel__head">
         <h1 class="panel__title">Топ криптовалют</h1>
@@ -67,51 +66,9 @@
               <th class="table__right hide-md">Max supply</th>
             </tr>
           </thead>
-          {% if coins %}
-            <tbody>
-                {% for coin in coins %}
-                    {# Беремо той єдиний найновіший запис історії, який ми завантажили через prefetch #}
-                    {% with latest=coin.market_data.all.0 %}
-                        <tr>
-                            {# 1. Замість хардкодної одиниці робимо автонумерацію #}
-                            <td class="muted">{{ forloop.counter }}</td>
-                            
-                            <td>
-                                <div class="coin">
-                                <span class="coin__icon" style="--c:#f7931a">₿</span>
-                                <span class="coin__name">{{ coin.name }}</span>
-                                <span class="coin__symbol">{{ coin.symbol }}</span>
-                                </div>
-                            </td>
-                            
-                            {# 2. Виводимо ціну та інші метрики з об'єкта LATEST, а не COIN #}
-                            <td class="table__right mono">${{ latest.price|default:"—" }}</td>
-                            
-                            {# 3. Робимо динамічний колір (зелений/червоний) для відсотка #}
-                            <td class="table__right">
-                                {% if latest.price_change_percentage_24h >= 0 %}
-                                    <span class="badge badge--up">+{{ latest.price_change_percentage_24h }}%</span>
-                                {% else %}
-                                    <span class="badge badge--down">{{ latest.price_change_percentage_24h }}%</span>
-                                {% endif %}
-                            </td>
-                            
-                            <td class="table__right mono hide-sm">${{ latest.market_cap|default:"—" }}</td>
-                            <td class="table__right mono hide-sm">${{ latest.total_volume|default:"—" }}</td>
-                            
-                            {# 4. А от max_supply дійсно лежить у самій моделі Coin, тому тут coin.max_supply — це ПРАВИЛЬНО #}
-                            <td class="table__right mono hide-md">{{ coin.max_supply|default:"∞" }}</td>
-                        </tr>
-                    {% endwith %}
-                {% endfor %}
-            </tbody>
-          {% else %}
-            <tbody>
-                <tr>
-                <td colspan="7" class="text-center">No coins available</td>
-                </tr>
-            </tbody>
-          {% endif %}
+          <tbody id = "coinList">
+                
+          </tbody>
         </table>
       </div>
     </section>

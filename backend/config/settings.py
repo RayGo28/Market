@@ -6,7 +6,7 @@ COINGECKO_API_KEY = config('COINGECKO_API_KEY', default='')
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = 'django-insecure-1&(_w3gopt9!6_6*#twn6af02ru-_k8obqzdv$)0qnmb$%8&gl'
+SECRET_KEY = config('SECRET_KEY')
 
 DEBUG = True
 

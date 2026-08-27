@@ -1,7 +1,11 @@
 export function renderCoinList(coins){
     try{
         const ListContainer = document.getElementById("coinList");
-        ListContainer.innerHTML = coins.map((coin, index) => {
+        if (!ListContainer) {
+            throw new Error("ListContainer element not found");
+        }
+        const safeCoins = coins || [];
+        ListContainer.innerHTML = safeCoins.map((coin, index) => {
             const currentData = coin.current_data || {};
             const priceChange = currentData.price_change_percentage_24h ?? 0;
             const isPositive = priceChange >= 0;
@@ -31,4 +35,19 @@ export function renderCoinList(coins){
     catch (error){
         console.error("Error of rendering coin list:", error);
     }
+}
+
+export function RenderGlobalData(globalData){
+    const usdFormatter = new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: 'USD',
+        notation: 'compact',
+        maximumFractionDigits: 2
+        });
+
+    const total_market_cap = usdFormatter.format(globalData.total_market_cap)
+    const total_volume = usdFormatter.format(globalData.total_volume)
+
+    document.getElementById("total_market_cap").textContent = `${total_market_cap}` 
+    document.getElementById("total_volume").textContent = `${total_volume}` 
 }

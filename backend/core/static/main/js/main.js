@@ -1,5 +1,5 @@
-import { getCoins } from "./api.js";
-import { renderCoinList } from "./dom.js";
+import { getCoins, getGlobalData } from "./api.js";
+import { renderCoinList, RenderGlobalData } from "./dom.js";
 
 
 let timerId = null;
@@ -13,11 +13,19 @@ async function init(){
 
 
         const coins = await getCoins();
-        if(coins === undefined){
-            throw new Error("Coins data is undefined");
+        if (coins && Array.isArray(coins)) {
+            renderCoinList(coins);
+        } else {
+            console.warn("Invalid coins data received:", coins);
         }
-    
-        renderCoinList(coins);
+
+        const globalData = await getGlobalData();
+        if(globalData){
+            RenderGlobalData(globalData);
+        }
+        else {
+            console.warn("Invalid global data received:", globalData);
+        }
 
     }
     catch (error){

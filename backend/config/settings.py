@@ -116,6 +116,10 @@ CELERY_BEAT_SCHEDULE = {
         'task': 'watcher.tasks.fetch_cryptocurrency', 
         'schedule': 60,
     },
+    'fetch_global_data' : {
+        'task': 'watcher.tasks.fetch_global_data',
+        'schedule' : 60,
+    },
 }
 
 CELERY_BROKER_URL = 'redis://redis:6379/0'

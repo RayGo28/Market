@@ -112,13 +112,13 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 CELERY_BEAT_SCHEDULE = {
-    'fetch_cryptocurrency': {
-        'task': 'watcher.tasks.fetch_cryptocurrency', 
-        'schedule': 60,
+    'update_market_data': {
+        'task': 'watcher.tasks.update_market_data', 
+        'schedule': 120,
     },
-    'fetch_global_data' : {
-        'task': 'watcher.tasks.fetch_global_data',
-        'schedule' : 60,
+    'update_global_data' : {
+        'task': 'watcher.tasks.update_global_data',
+        'schedule' : 600,
     },
 }
 

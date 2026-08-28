@@ -45,9 +45,18 @@ export function RenderGlobalData(globalData){
         maximumFractionDigits: 2
         });
 
+    const percentageFormatter = new Intl.NumberFormat('en-US', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 4
+        });
+
     const total_market_cap = usdFormatter.format(globalData.total_market_cap)
     const total_volume = usdFormatter.format(globalData.total_volume)
+    const domination_btc = `${percentageFormatter.format(globalData.market_cap_percentage)}%`
+
 
     document.getElementById("total_market_cap").textContent = `${total_market_cap}` 
     document.getElementById("total_volume").textContent = `${total_volume}` 
-}
+    document.getElementById("active_coins_count").textContent = `${globalData.active_coins_count}`
+    document.getElementById("domination_btc").textContent = domination_btc
+    }

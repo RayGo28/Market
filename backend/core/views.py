@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from .models import Coin,CoinCurrentData
-from .serializers import CoinSerializer
+from .serializers import CoinListSerializer
 from rest_framework.permissions import AllowAny
 from rest_framework.viewsets import ReadOnlyModelViewSet
 from django.core.cache import cache
@@ -13,7 +13,7 @@ def index(request):
 
 class Coins(ReadOnlyModelViewSet):
     queryset = Coin.objects.filter(is_active=True).select_related('current_data')
-    serializer_class = CoinSerializer
+    serializer_class = CoinListSerializer
     permission_classes = [AllowAny]
     
     def list(self, request, *args, **kwarqs):

@@ -1,0 +1,55 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pyc
+*.pkl
+*.log
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Django
+*.sqlite3
+db.sqlite3
+backend/db.sqlite3
+/media/
+/staticfiles/
+*.pot
+*.pyc
+
+# Environment / secrets
+.env
+.env.*
+backend/.env
+backend/.env.*
+
+# Celery / beat
+celerybeat-schedule
+celerybeat.pid
+backend/celerybeat-schedule
+
+# Coverage / tooling
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+
+# IDE / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Docker / local runtime
+*.pid
+*.sock
+
+# Project-specific generated files
+backend/core/migrations/
+backend/**/migrations/

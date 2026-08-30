@@ -1,7 +1,7 @@
 import logging
 from celery import shared_task  # type: ignore
 import requests # type: ignore
-from core.services.coin_sync import sync_market_data, sync_global_data
+from core.services.data_sync import sync_market_data, sync_global_data
 
 logger = logging.getLogger(__name__)
 

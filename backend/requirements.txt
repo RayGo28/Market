@@ -8,3 +8,4 @@ django-filter
 flower 
 python-decouple
 django-redis
+drf-spectacular

@@ -47,9 +47,18 @@ document.addEventListener('alpine:init', () => {
 
         sortBy(column) {
             this.page = 1;
-
+            if(column === 'market_cap' && this.sortAsc === false){
+                this.sortAsc = true;
+                return;
+            }
             if (this.sortColumn === column) {
-                this.sortAsc = !this.sortAsc;
+                if (this.sortAsc === true) {
+                    this.sortAsc = false;
+                    return;
+                }
+
+                this.sortColumn = 'market_cap';
+                this.sortAsc = false;
                 return;
             }
 

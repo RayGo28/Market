@@ -106,33 +106,32 @@
             </tr>
           </thead>
           <tbody>      
-            <template x-for="(coin, index) in paginatedCoins" :key="coin.gecko_id || index">      
-              <tr>
-                <!-- Скрізний порядковий номер з урахуванням сторінки -->
-                <td class="muted" x-text="(page - 1) * perPage + index + 1"></td>
-                <td>
-                  <div class="coin">
-                    <template x-if="coin?.image_url">
-                      <img :src="coin.image_url" :alt="coin?.name || 'coin'" class="coin__icon" />
-                    </template>
-                    <span class="coin__name" x-text="coin?.name"></span>
-                    <span class="coin__symbol" x-text="coin?.symbol?.toUpperCase()"></span>
-                  </div>
-                </td>
-                <td class="table__right mono" x-text="priceFormat(coin.current_data?.price)"></td>
-                <td class="table__right">
-                  <span class="badge" :class="{
-                    'badge--up': coin.current_data?.price_change_percentage_24h > 0,
-                    'badge--down': coin.current_data?.price_change_percentage_24h < 0
-                  }"
-                  x-text="percentFormat(coin.current_data?.price_change_percentage_24h)">
-                  </span>
-                </td>
-                <td class="table__right mono hide-sm" x-text="usdFormat(coin.current_data?.market_cap)"></td>
-                <td class="table__right mono hide-sm" x-text="usdFormat(coin.current_data?.total_volume)"></td>
-                <td class="table__right mono hide-md" x-text="coin?.max_supply ? numberFormat(coin.max_supply) : '∞'"></td>
-              </tr>
-            </template>
+              <template  x-for="(coin, index) in paginatedCoins" :key="coin.gecko_id || index" > 
+                <tr @click="window.location.href = `/coin/${coin.id}/`" style="cursor: pointer;">
+                  <td class="muted" x-text="(page - 1) * perPage + index + 1"></td>
+                  <td>
+                    <div class="coin">
+                      <template x-if="coin?.image_url">
+                        <img :src="coin.image_url" :alt="coin?.name || 'coin'" class="coin__icon" />
+                      </template>
+                      <span class="coin__name" x-text="coin?.name"></span>
+                      <span class="coin__symbol" x-text="coin?.symbol?.toUpperCase()"></span>
+                    </div>
+                  </td>
+                  <td class="table__right mono" x-text="priceFormat(coin.current_data?.price)"></td>
+                  <td class="table__right">
+                    <span class="badge" :class="{
+                      'badge--up': coin.current_data?.price_change_percentage_24h > 0,
+                      'badge--down': coin.current_data?.price_change_percentage_24h < 0
+                    }"
+                    x-text="percentFormat(coin.current_data?.price_change_percentage_24h)">
+                    </span>
+                  </td>
+                  <td class="table__right mono hide-sm" x-text="usdFormat(coin.current_data?.market_cap)"></td>
+                  <td class="table__right mono hide-sm" x-text="usdFormat(coin.current_data?.total_volume)"></td>
+                  <td class="table__right mono hide-md" x-text="coin?.max_supply ? numberFormat(coin.max_supply) : '∞'"></td>
+                </tr>
+              </template>
           </tbody>
         </table>
 

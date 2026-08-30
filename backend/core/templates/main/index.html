@@ -1,6 +1,7 @@
 {% extends "main/layout.html" %}
 {% load static %}
 {% block content %}
+<div x-data="cryptoMarket()" x-cloak>
   <header class="topbar">
     <div class="topbar__inner">
       <div class="brand">
@@ -13,32 +14,70 @@
         <a href="#" class="nav__link">Обране</a>
       </nav>
       <div class="topbar__actions">
-        <input type="search" class="search" placeholder="Пошук монети…" aria-label="Пошук монети" />
+        <input
+          type="search"
+          x-model="searchQuery"
+          class="search"
+          @input.debounce.300ms="fetchSearchResults();"
+          placeholder="Пошук монети…"
+          aria-label="Пошук монети"
+        />
+        <div 
+            class="search-dropdown" 
+            x-show="showDropdown" 
+            @click.outside="showDropdown = false"
+            x-cloak
+        >
+            <ul class="dropdown-list">
+                <template x-for="coin in searchResults" :key="coin.id">
+                    <li class="dropdown-item">
+                        <a :href="`/coin/${coin.id}`" class="dropdown-link">
+                            <img :src="coin.image_url" class="dropdown-icon" alt="icon">
+                            <span x-text="coin.name"></span>
+                            <span class="muted" x-text="coin.symbol.toUpperCase()"></span>
+                        </a>
+                    </li>
+                </template>
+            </ul>
+        </div>
         <button class="btn btn--primary" type="button">Підключити гаманець</button>
+
       </div>
     </div>
   </header>
 
-  <main class="container">
-    <section  class="stats" aria-label="Глобальні метрики ринку">
+  <main class="container"  x-cloak>
+
+    <section class="stats" aria-label="Глобальні метрики ринку">
       <article class="stat">
         <span class="stat__label">Ринкова капіталізація</span>
-        <span id="total_market_cap" class="stat__value"></span>
-        <span class="badge badge--up">+3.2%</span>
+        <span class="stat__value" x-text="usdFormat(globalData?.total_market_cap)"></span>
+        <span class="badge" :class="{
+                        'badge--up' : globalData?.market_cap_change_percentage_24h_usd > 0,
+                        'badge--down' : globalData?.market_cap_change_percentage_24h_usd < 0
+                      }"
+              x-text="percentFormat(globalData?.market_cap_change_percentage_24h_usd)"></span>
       </article>
+
       <article class="stat">
         <span class="stat__label">Обсяг за 24 год</span>
-        <span id="total_volume" class="stat__value"></span>
-        <span class="badge badge--down">-1.4%</span>
+        <span class="stat__value" x-text="usdFormat(globalData?.total_volume)"></span>
+        <span class="badge" :class="{
+                        'badge--up' : globalData?.volume_change_percentage_24h_usd > 0,
+                        'badge--down' : globalData?.volume_change_percentage_24h_usd < 0
+                      }"
+              x-text="percentFormat(globalData?.volume_change_percentage_24h_usd)"></span>
       </article>
+
       <article class="stat">
         <span class="stat__label">Домінація BTC</span>
-        <span id="domination_btc" class="stat__value"></span>
-        <span class="badge badge--up">+0.5%</span>
+        <span class="stat__value" x-text="percentFormat(globalData?.market_cap_percentage_btc)"></span>
+        <span class="badge badge--neutral">—</span>
       </article>
+
       <article class="stat">
-        <span  class="stat__label">Активних монет</span>
-        <span id="active_coins_count" class="stat__value"></span>
+        <span class="stat__label">Активних монет</span>
+        <span class="stat__value" x-text="globalData?.active_coins_count ?? '—'"></span>
         <span class="badge badge--neutral">—</span>
       </article>
     </section>
@@ -47,34 +86,86 @@
       <div class="panel__head">
         <h1 class="panel__title">Топ криптовалют</h1>
         <div class="panel__filters">
-          <button class="chip chip--active" type="button">Усі</button>
-          <button class="chip" type="button">Зростають</button>
-          <button class="chip" type="button">Падають</button>
+          <button class="chip" :class="{ 'chip--active': filter === 'all' }" type="button" @click="setFilter('all')">Усі</button>
+          <button class="chip" :class="{ 'chip--active': filter === 'gainers' }" type="button" @click="setFilter('gainers')">Зростають</button>
+          <button class="chip" :class="{ 'chip--active': filter === 'losers' }" type="button" @click="setFilter('losers')">Падають</button>
         </div>
       </div>
 
       <div class="table-wrap">
-        <table class="table">
+        <table class="table" x-show="!loading">
           <thead>
             <tr>
               <th class="table__num">#</th>
-              <th>Монета</th>
-              <th class="table__right">Ціна</th>
-              <th class="table__right">24 год</th>
-              <th class="table__right hide-sm">Ринкова кап.</th>
-              <th class="table__right hide-sm">Обсяг (24 год)</th>
-              <th class="table__right hide-md">Max supply</th>
+              <th class="table__sort" @click="sortBy('name')">Монета</th>
+              <th class="table__sort table__right" type="button" @click="sortBy('price')">Ціна</th>
+              <th class="table__sort table__right" type="button" @click="sortBy('price_change_percentage_24h')">24 год</th>
+              <th class="table__sort table__right hide-sm" type="button" @click="sortBy('market_cap')">Ринкова кап.</th>
+              <th class="table__sort table__right hide-sm" type="button" @click="sortBy('total_volume')">Обсяг (24 год)</th>
+              <th class="table__sort table__right hide-md" type="button" @click="sortBy('max_supply')">Max supply</th>
             </tr>
           </thead>
-          <tbody id = "coinList">
-                
+          <tbody>      
+            <template x-for="(coin, index) in paginatedCoins" :key="coin.gecko_id || index">      
+              <tr>
+                <!-- Скрізний порядковий номер з урахуванням сторінки -->
+                <td class="muted" x-text="(page - 1) * perPage + index + 1"></td>
+                <td>
+                  <div class="coin">
+                    <template x-if="coin?.image_url">
+                      <img :src="coin.image_url" :alt="coin?.name || 'coin'" class="coin__icon" />
+                    </template>
+                    <span class="coin__name" x-text="coin?.name"></span>
+                    <span class="coin__symbol" x-text="coin?.symbol?.toUpperCase()"></span>
+                  </div>
+                </td>
+                <td class="table__right mono" x-text="priceFormat(coin.current_data?.price)"></td>
+                <td class="table__right">
+                  <span class="badge" :class="{
+                    'badge--up': coin.current_data?.price_change_percentage_24h > 0,
+                    'badge--down': coin.current_data?.price_change_percentage_24h < 0
+                  }"
+                  x-text="percentFormat(coin.current_data?.price_change_percentage_24h)">
+                  </span>
+                </td>
+                <td class="table__right mono hide-sm" x-text="usdFormat(coin.current_data?.market_cap)"></td>
+                <td class="table__right mono hide-sm" x-text="usdFormat(coin.current_data?.total_volume)"></td>
+                <td class="table__right mono hide-md" x-text="coin?.max_supply ? numberFormat(coin.max_supply) : '∞'"></td>
+              </tr>
+            </template>
           </tbody>
         </table>
+
+        <div class="table__pagination" x-show="!loading">
+          <div class="pagination__controls">
+            <button class="pager-btn" type="button" @click="prevPage()" :disabled="page === 1">
+              Назад
+            </button>
+
+            <div class="pagination__page-select">
+              <select class="select-input" x-model.number="page">
+                <template x-for="p in totalPages" :key="p">
+                  <option :value="p" x-text="`Стор. ${p}`"></option>
+                </template>
+              </select>
+              <span class="muted" x-text="`з ${totalPages}`"></span>
+            </div>
+
+            <button class="pager-btn pager-btn--primary" type="button" @click="nextPage()" :disabled="page === totalPages">
+              Далі
+            </button>
+          </div>
+        </div>
+
+        <div x-show="loading" class="loader-container">
+          <div class="spinner"></div>
+          <span class="loader-text">Завантаження ринкових даних...</span>
+        </div>
       </div>
     </section>
   </main>
-
-  <footer class="footer">
+</div>
+  <footer class="footer" x-show="!loading">
     <p>© 2026 CryptoWatch. Дані наведено для демонстрації.</p>
   </footer>
 {% endblock %}

@@ -2,7 +2,8 @@ from django.db import models
 from django.utils import timezone
 
 class Coin(models.Model):
-    gecko_id = models.CharField(max_length=50, unique=True)
+    gecko_id = models.CharField(max_length=100, unique=True)
+    image_url = models.URLField(max_length=200, null=True, blank=True)
     name = models.CharField(max_length=100)
     symbol = models.CharField(max_length=10)
     max_supply = models.DecimalField(max_digits=38, decimal_places=2, null=True, blank=True)

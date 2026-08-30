@@ -1,30 +1,20 @@
-export async function getCoins(){
-    try{
-        const response = await fetch('/api/coins/');
+export async function getCoins(search = '') {
 
-        if(!response.ok){
-            throw new Error(`Error of the server: ${response.status}`)
-        }
+    const response = await fetch(`/api/coins/`);
 
-        return await response.json();
+    if (!response.ok) {
+        throw new Error(`Server error: ${response.status}`);
     }
-    catch (error){
-        console.error("Error of request",error)
-        return null
-    }
+
+    return await response.json();
 }
 
-export async function getGlobalData(){
-    try{
-        const response = await fetch('/api/global/');
-        if(!response.ok){
-            throw new Error("")
-        }
+export async function getGlobalData() {
+    const response = await fetch('/api/global/');
 
-        return await response.json();
+    if (!response.ok) {
+        throw new Error(`Server error: ${response.status}`);
     }
-    catch (error){
-        console.error("Error of request",error)
-        return null
-    }
+
+    return await response.json();
 }

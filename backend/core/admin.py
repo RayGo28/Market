@@ -12,7 +12,7 @@ def timestamp_24h(obj):
 
 @admin.register(Coin)
 class CoinAdmin(admin.ModelAdmin):
-    list_display = ("gecko_id", "name", "symbol", "max_supply", "is_active")
+    list_display = ('gecko_id', 'name', 'symbol', 'max_supply', 'is_active')
     list_filter = ('name', 'symbol')
     
 @admin.register(PriceHistory)

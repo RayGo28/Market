@@ -1,22 +1,26 @@
 from django.shortcuts import render
-from .models import Coin,CoinCurrentData
+from core.services.selectors import get_coins_market_overview
+
 from .serializers import CoinListSerializer
 from rest_framework.permissions import AllowAny
 from rest_framework.viewsets import ReadOnlyModelViewSet
 from django.core.cache import cache
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
+from rest_framework import generics
+
 
 def index(request):
     
     return render(request, 'main/index.html')
 
 class Coins(ReadOnlyModelViewSet):
-    queryset = Coin.objects.filter(is_active=True).select_related('current_data')
+    queryset = get_coins_market_overview()
     serializer_class = CoinListSerializer
     permission_classes = [AllowAny]
+
     
-    def list(self, request, *args, **kwarqs):
+    def list(self, request, *args, **kwargs):
         cache_key = 'coin_list_cache'
         data = cache.get(cache_key)
         
@@ -27,6 +31,19 @@ class Coins(ReadOnlyModelViewSet):
             
             cache.set(cache_key, data, 65)
         
+        search_query = request.query_params.get('search', '').strip().lower()
+        if search_query:
+            filtered_data = []
+            for coin in data:
+                name = str(coin.get('name', '')).lower()
+                symbol = str(coin.get('symbol', '')).lower()
+                
+
+                if search_query in name or search_query in symbol:
+                    filtered_data.append(coin)
+                    
+            data = filtered_data
+            
         return Response(data)
     
 @api_view(["GET"])
@@ -38,7 +55,7 @@ def get_global_data(request):
         data = {
                     "total_market_cap" : None,
                     "total_volume" : None,
-                    "market_cap_percentage" : None,
+                    "market_cap_percentage_btc" : None,
                     "active_coins_count" : None  
                 }
         

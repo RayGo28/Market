@@ -16,6 +16,7 @@ INSTALLED_APPS = [
     'core',
     'rest_framework',
     'watcher',
+    'drf_spectacular',
     'django.contrib.humanize',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -86,7 +87,9 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
-
+REST_FRAMEWORK = {
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+}
 
 LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'Europe/Kyiv'

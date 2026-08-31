@@ -31,7 +31,7 @@
             <ul class="dropdown-list">
                 <template x-for="coin in searchResults" :key="coin.id">
                     <li class="dropdown-item">
-                        <a :href="`/coin/${coin.id}`" class="dropdown-link">
+                        <a :href="`/coin/${coin.gecko_id}`" class="dropdown-link">
                             <img :src="coin.image_url" class="dropdown-icon" alt="icon">
                             <span x-text="coin.name"></span>
                             <span class="muted" x-text="coin.symbol.toUpperCase()"></span>
@@ -107,7 +107,7 @@
           </thead>
           <tbody>      
               <template  x-for="(coin, index) in paginatedCoins" :key="coin.gecko_id || index" > 
-                <tr @click="window.location.href = `/coin/${coin.id}/`" style="cursor: pointer;">
+                <tr @click="window.location.href = `/coin/${coin.gecko_id}/`" style="cursor: pointer;">
                   <td class="muted" x-text="(page - 1) * perPage + index + 1"></td>
                   <td>
                     <div class="coin">

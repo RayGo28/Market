@@ -1,25 +1,36 @@
 from django.shortcuts import render
-from core.services.selectors import get_coins_market_overview
-
-from .serializers import CoinListSerializer
+from core.services.selectors import get_coins_market_overview, get_coin_detail_overview
+from .serializers import CoinListSerializer, CoinDetailSerializer
 from rest_framework.permissions import AllowAny
 from rest_framework.viewsets import ReadOnlyModelViewSet
 from django.core.cache import cache
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework import generics
 
 
 def index(request):
     
     return render(request, 'main/index.html')
 
+def coin_detail_page(request, pk):
+    return render(request, 'main/coin_detail.html', {'str': pk})
+
 class Coins(ReadOnlyModelViewSet):
     queryset = get_coins_market_overview()
     serializer_class = CoinListSerializer
     permission_classes = [AllowAny]
-
+    lookup_field = 'gecko_id'
     
+    def get_queryset(self):
+        return get_coins_market_overview()
+    
+    def get_serializer_class(self):
+        if self.action == "retrieve":
+            return CoinDetailSerializer
+
+        elif self.action == "list":
+            return CoinListSerializer
+     
     def list(self, request, *args, **kwargs):
         cache_key = 'coin_list_cache'
         data = cache.get(cache_key)
@@ -45,6 +56,25 @@ class Coins(ReadOnlyModelViewSet):
             data = filtered_data
             
         return Response(data)
+    
+    def retrieve(self, request, *args, **kwargs):
+        gecko_id = kwargs["gecko_id"]
+        cache_key = f"coin_detail_{gecko_id}"
+        
+        data = cache.get(cache_key)
+        
+        if data is None:
+            coin = get_coin_detail_overview(gecko_id)
+            serializer = self.get_serializer(coin)
+            data = serializer.data
+            cache.set(cache_key, data, timeout = 125)
+    
+        return Response(data)
+    
+        
+        
+
+        
     
 @api_view(["GET"])
 @permission_classes([AllowAny])

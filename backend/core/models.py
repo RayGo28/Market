@@ -17,14 +17,16 @@ class Coin(models.Model):
         return f"{self.name} ({self.symbol})"
     
 class PriceHistory(models.Model):
-    coin = models.ForeignKey(Coin, on_delete=models.CASCADE, related_name="market_data")
+    coin = models.ForeignKey(Coin, on_delete=models.CASCADE, related_name="history_data")
     
     price = models.DecimalField(max_digits=20, decimal_places=8, null=True,blank=True)
     market_cap = models.DecimalField(max_digits=25, decimal_places=2, null=True,blank=True)
     total_volume = models.DecimalField(max_digits=25, decimal_places=2, null=True,blank=True)
     price_change_percentage_24h = models.DecimalField(max_digits=10, decimal_places=2, null=True,blank=True)
+    circulating_supply = models.DecimalField(max_digits=25, decimal_places=2, null=True,blank=True)
     timestamp = models.DateTimeField(default=timezone.now)
-    
+    atl = models.DecimalField(max_digits=20, decimal_places=8, null=True,blank=True)
+    ath = models.DecimalField(max_digits=20, decimal_places=8, null=True,blank=True)
     class Meta:
         ordering = ['-timestamp']
         indexes = [
@@ -45,8 +47,10 @@ class CoinCurrentData(models.Model):
     market_cap = models.DecimalField(max_digits=25, decimal_places=2, null=True,blank=True)
     total_volume = models.DecimalField(max_digits=25, decimal_places=2, null=True,blank=True)
     price_change_percentage_24h = models.DecimalField(max_digits=10, decimal_places=2, null=True,blank=True)
+    circulating_supply = models.DecimalField(max_digits=25, decimal_places=2, null=True,blank=True)
     timestamp = models.DateTimeField(default=timezone.now)
-    
+    atl = models.DecimalField(max_digits=20, decimal_places=8, null=True,blank=True)
+    ath = models.DecimalField(max_digits=20, decimal_places=8, null=True,blank=True)
     class Meta:
         verbose_name = "Coin Current Data"
         verbose_name_plural = "Coins Current Data"

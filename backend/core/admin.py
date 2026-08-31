@@ -17,11 +17,11 @@ class CoinAdmin(admin.ModelAdmin):
     
 @admin.register(PriceHistory)
 class PriceHistoryAdmin(admin.ModelAdmin):
-    list_display = ("coin", "price", "market_cap", "total_volume", "price_change_percentage_24h", timestamp_24h)
+    list_display = ("coin", "price", "market_cap", "total_volume", "price_change_percentage_24h","circulating_supply","ath","atl", timestamp_24h)
     list_filter = ("coin", "timestamp")
 
 
 @admin.register(CoinCurrentData)
 class CoinCurrentDataAdmin(admin.ModelAdmin):
-    list_display = ("coin", "price", "market_cap", "total_volume", "price_change_percentage_24h", timestamp_24h)
+    list_display = ("coin", "price", "market_cap", "total_volume", "price_change_percentage_24h","circulating_supply", "ath","atl", timestamp_24h)
     list_filter = ("coin", "timestamp")

@@ -1,3 +1,5 @@
+from decimal import Decimal, InvalidOperation
+
 from core.services.coingecko import fetch_market_data, fetch_global_data
 from core.models import Coin,CoinCurrentData,PriceHistory
 from django.core.cache import cache
@@ -16,12 +18,29 @@ def prepare_records_data(raw_data, active_coins):
             coin_instance = active_coins.get(coin_market_info["id"])
             if coin_instance:
                 received_ids.append(coin_market_info["id"])
+                
+                ath_raw = coin_market_info.get("ath")
+                atl_raw = coin_market_info.get("atl")
+                
+                try:
+                    ath_val = Decimal(str(ath_raw)) if ath_raw is not None else None
+                except (InvalidOperation, TypeError):
+                    ath_val = None
+                    
+                try:
+                    atl_val = Decimal(str(atl_raw)) if atl_raw is not None else None
+                except (InvalidOperation, TypeError):
+                    atl_val = None
+                    
                 data_kwargs = {
                                 'coin': coin_instance,
                                 'price': coin_market_info.get("current_price"),
                                 'market_cap': coin_market_info.get("market_cap"),
                                 'total_volume': coin_market_info.get("total_volume"),
                                 'price_change_percentage_24h': coin_market_info.get("price_change_percentage_24h"),
+                                'circulating_supply': coin_market_info.get("circulating_supply"),
+                                'atl' : atl_val,
+                                'ath' : ath_val,
                 }
                         
                 records_data.append(data_kwargs)    
@@ -37,6 +56,9 @@ def save_market_data(records_data):
         'market_cap',
         'total_volume',
         'price_change_percentage_24h',
+        'circulating_supply',
+        'ath',
+        'atl',
         'timestamp'
     ]
     

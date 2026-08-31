@@ -1,28 +1,36 @@
-from core.models import PriceHistory,Coin,CoinCurrentData
-from django.db.models import OuterRef, Subquery, ExpressionWrapper, F, FloatField
-from django.utils import timezone
-from core.serializers import CoinListSerializer
-from django.core.cache import cache
-
+from core.models import PriceHistory,Coin
+from django.db.models import Count
+from django.db.models import Avg, Max, Min
 def get_coins_market_overview():
-    time_24h_ago = timezone.now() - timezone.timedelta(hours=24)
-    
-    price_24h_ago = PriceHistory.objects.filter(
-                    coin = OuterRef("pk"),
-                    timestamp__lte = time_24h_ago,
-                ).values("price")[:1]
-    
-    coins = Coin.objects.filter(is_active=True).select_related("current_data").annotate(
-        price_24h_ago = Subquery(price_24h_ago),
-        change_percent = ExpressionWrapper((F("current_data__price") - F("price_24h_ago")) / F("price_24h_ago") * 100,
-                                        output_field = FloatField())
-    
+    coins = Coin.objects.filter(is_active=True).select_related("current_data").only(
+        "id","name","symbol","current_data__price","current_data__market_cap",
+        "current_data__total_volume","current_data__price_change_percentage_24h",
     )
     
     return coins
+
     
+def get_coin_detail_overview(gecko_id):
+    coin = Coin.objects.select_related("current_data").get(
+                gecko_id=gecko_id,
+                is_active=True
+            )
     
+    history = (
+        PriceHistory.objects.filter(coin=coin)[:10]
+    )
+
+    coin.history_records = history
     
-    
-    
-    
+    stats = PriceHistory.objects.filter(coin=coin).aggregate(
+        avg_price=Avg("price"),
+        highest_price=Max("price"),
+        lowest_price=Min("price"),
+        history_records_count=Count("id"),
+        first_recorded_at=Min("timestamp"),  
+        last_updated_at=Max("timestamp")
+    )
+
+    coin.stats = stats
+
+    return coin

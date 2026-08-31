@@ -1,0 +1,281 @@
+{% extends "main/layout.html" %}
+{% load humanize %}
+{% load static %}
+{% block title %}CryptoWatch{% endblock %}
+
+{% block content %}
+
+
+
+
+<div class="coin-page" x-data="coinDetail(`{{str}}`)" >
+  <header class="topbar">
+    <div class="topbar__inner">
+      <a href="/" class="brand">
+        <span class="brand__mark">◈</span>
+        <span class="brand__name">CryptoWatch</span>
+      </a>
+
+      <nav class="nav">
+        <a href="/" class="nav__link nav__link--active">Ринок</a>
+        <a href="#" class="nav__link">Портфель</a>
+        <a href="#" class="nav__link">Обране</a>
+      </nav>
+
+      <div class="topbar__actions">
+        <input class="search" type="search" placeholder="Пошук монети…" />
+        <button class="btn btn--primary" type="button">
+          Підключити гаманець
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <a href="/" class="back-link">← Повернутися до ринку</a>
+
+    <div x-show="loading" class="loader-container">
+      <div class="spinner"></div>
+      <span class="loader-text">Завантаження даних монети...</span>
+    </div>
+
+    <div x-show="error" class="error-container" style="background: #fee; padding: 20px; border-radius: 8px; margin: 20px 0; color: #c00;">
+      <strong>Помилка:</strong> <span x-text="error"></span>
+    </div>
+
+    <div x-show="!loading && !error">
+      <section class="coin-hero panel">
+        <div class="coin-identity">
+          <img
+            :src="coin?.image_url"
+            :alt="coin?.symbol"
+            class="coin-identity__icon"
+          />
+
+          <div>
+            <div class="coin-identity__title-row">
+              <h1 x-text="coin?.name"></h1>
+              <span class="coin-symbol" x-text="coin?.symbol?.toUpperCase()"></span>
+            </div>
+            <p class="muted" x-text="coin?.gecko_id"></p>
+          </div>
+        </div>
+
+        <div class="coin-price">
+          <span class="coin-price__label">Поточна ціна</span>
+          <strong class="coin-price__value" x-text="priceFormat(coin?.current_data?.price)">
+          </strong>
+          <span class="badge badge--up" x-text="percentFormat(coin?.current_data?.price_change_percentage_24h)">
+          </span>
+        </div>
+      </section>
+
+      <section class="stats" aria-label="Основні показники">
+      <article class="stat">
+        <span class="stat__label">Ринкова капіталізація</span>
+        <strong class="stat__value" x-text="usdFormat(coin?.current_data?.market_cap)">
+        </strong>
+        <span class="muted">market_cap</span>
+      </article>
+
+      <article class="stat">
+        <span class="stat__label">Обсяг за 24 год</span>
+        <strong class="stat__value" x-text="usdFormat(coin?.current_data?.total_volume)">
+        </strong>
+        <span class="muted">total_volume</span>
+      </article>
+
+      <article class="stat">
+        <span class="stat__label">Циркулююча пропозиція</span>
+        <strong class="stat__value" x-text="numberFormat(coin?.current_data?.circulating_supply)">
+        </strong>
+        <span class="muted">circulating_supply</span>
+      </article>
+
+      <article class="stat">
+        <span class="stat__label">Максимальна пропозиція</span>
+        <strong class="stat__value" x-text="numberFormat(coin?.max_supply)">
+        </strong>
+        <span class="muted">max_supply</span>
+      </article>
+    </section>
+
+    <section class="content-grid">
+      <article class="panel">
+        <div class="panel__head">
+          <div>
+            <h2 class="panel__title">Ринкові метрики</h2>
+            <p class="panel__subtitle">
+              Агреговані дані з історії ціни монети
+            </p>
+          </div>
+        </div>
+
+        <div class="metrics-grid">
+          <div class="metric">
+            <span class="metric__label">ATH recorded</span>
+            <strong class="metric__value" x-text="usdFormat(coin?.current_data?.ath)">
+            </strong>
+            <span class="metric__key">ath_recorded</span>
+          </div>
+
+          <div class="metric">
+            <span class="metric__label">ATL recorded</span>
+            <strong class="metric__value" x-text="usdFormat(coin?.current_data?.atl)">
+            </strong>
+            <span class="metric__key">atl_recorded</span>
+          </div>
+
+          <div class="metric">
+            <span class="metric__label">Середня ціна</span>
+            <strong class="metric__value" x-text="usdFormat(coin?.avg_price)">
+            </strong>
+            <span class="metric__key">avg_price</span>
+          </div>
+
+          <div class="metric">
+            <span class="metric__label">Кількість записів</span>
+            <strong class="metric__value" x-text="numberFormat(coin?.history_records_count)">
+            </strong>
+            <span class="metric__key">history_records_count</span>
+          </div>
+
+          <div class="metric">
+            <span class="metric__label">Найвища ціна</span>
+            <strong class="metric__value" x-text="usdFormat(coin?.highest_price)">
+            </strong>
+            <span class="metric__key">highest_price</span>
+          </div>
+
+          <div class="metric">
+            <span class="metric__label">Найнижча ціна</span>
+            <strong class="metric__value" x-text="usdFormat(coin?.lowest_price)">
+            </strong>
+            <span class="metric__key">lowest_price</span>
+          </div>
+
+          <div class="metric">
+            <span class="metric__label">Перша дата запису</span>
+            <strong class="metric__value metric__value--small" x-text="dateFormat(coin?.first_recorded_at)">
+            </strong>
+            <span class="metric__key">first_recorded_at</span>
+          </div>
+
+          <div class="metric">
+            <span class="metric__label">Останнє оновлення</span>
+            <strong class="metric__value metric__value--small" x-text="dateFormat(coin?.last_updated_at)">
+            </strong>
+            <span class="metric__key">last_updated_at</span>
+          </div>
+        </div>
+      </article>
+
+      <aside class="panel details-panel">
+        <div class="panel__head">
+          <div>
+            <h2 class="panel__title">Деталі моделі</h2>
+            <p class="panel__subtitle">Поля об’єкта Coin</p>
+          </div>
+        </div>
+
+        <dl class="details-list">
+          <div class="detail-row">
+            <dt>ID</dt>
+            <dd x-text="coin?.id"></dd>
+          </div>
+
+          <div class="detail-row">
+            <dt>Gecko ID</dt>
+            <dd x-text="coin?.gecko_id"></dd>
+          </div>
+
+          <div class="detail-row">
+            <dt>Назва</dt>
+            <dd x-text="coin?.name"></dd>
+          </div>
+
+          <div class="detail-row">
+            <dt>Символ</dt>
+            <dd x-text="coin?.symbol"></dd>
+          </div>
+
+          <div class="detail-row">
+            <dt>Статус</dt>
+            <dd>
+              <span
+                  class="status"
+                  :class="coin?.is_active ? 'status--active' : 'status--inactive'"
+                  x-text="coin?.is_active ? 'Активна' : 'Неактивна'"
+              ></span>
+          </dd>
+          </div>
+
+          <div class="detail-row">
+            <dt>Max supply</dt>
+            <dd x-text="coin?.max_supply"></dd>
+          </div>
+        </dl>
+      </aside>
+    </section>
+
+    <section class="panel history-panel">
+      <div class="panel__head">
+        <div>
+          <h2 class="panel__title">Останні записи історії</h2>
+          <p class="panel__subtitle">
+            PriceHistory · останні оновлення ринку
+          </p>
+        </div>
+
+        <span class="badge badge--neutral" x-text="numberFormat(coin?.history_data.length ?? 0) + ' ' + 'записів'" > 
+        </span>
+      </div>
+
+      <div class="table-wrap">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Дата</th>
+              <th class="table__right">Ціна</th>
+              <th class="table__right">Зміна 24 год</th>
+              <th class="table__right hide-sm">Ринкова кап.</th>
+              <th class="table__right hide-md">Обсяг</th>
+              <th class="table__right hide-md">Supply</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <template x-for="record in coin?.history_data ?? []" :key="record.id">
+              <tr>
+                <td class="muted" x-text="dateFormat(record.timestamp)"></td>
+                <td class="table__right mono" x-text="priceFormat(record.price)">
+                </td>
+                <td class="table__right">
+                  <span class="badge badge--up" x-text="percentFormat(record.price_change_percentage_24h)">
+                  </span>
+                </td>
+                <td class="table__right mono hide-sm" x-text="usdFormat(record.market_cap)">
+                </td>
+                <td class="table__right mono hide-md" x-text="usdFormat(record.total_volume)">
+                </td>
+                <td class="table__right mono hide-md" x-text="record.circulating_supply">
+                </td>
+              </tr>
+            </template>
+            <tr>
+              <td colspan="6" class="empty-state" x-show="(coin?.history_data?.length ?? 0) === 0">
+                Історичних записів поки немає
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <p>© 2026 CryptoWatch. Дані наведено для демонстрації.</p>
+  </footer>
+</div>
+{% endblock %}

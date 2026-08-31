@@ -11,6 +11,7 @@ router.register(r"coins", views.Coins, basename='coins')
 
 urlpatterns = [
     path('', views.index, name='index'),
+    path('coin/<str:pk>/', views.coin_detail_page, name='coin-detail'),
     path('api/',include(router.urls)),
     path('api/global/', views.get_global_data, name="global_data"),
     

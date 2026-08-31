@@ -16,9 +16,14 @@ document.addEventListener('alpine:init', () => {
         showDropdown: false,
 
         async init() {
-            await this.fetchData();
-            this.loading = false;
-            this.scheduleNextFetch();
+            try {
+                await this.fetchData();
+                this.loading = false;
+                this.scheduleNextFetch();
+            } catch (error) {
+                console.error('Error loading initial data:', error);
+                this.loading = false;
+            }
         },
 
         async fetchSearchResults() {

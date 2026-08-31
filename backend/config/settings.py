@@ -2,11 +2,11 @@ from celery.schedules import crontab # type: ignore
 from pathlib import Path
 from decouple import config # type: ignore
 
-COINGECKO_API_KEY = config('COINGECKO_API_KEY', default='')
+COINGECKO_API_KEY = config('COINGECKO_API_KEY', default='CG-f4kYoZp3SPRTxpahp84CooT1')
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = config('SECRET_KEY')
+SECRET_KEY = config('SECRET_KEY', default='django-insecure-!@#%$^&*()_+1234567890')
 
 DEBUG = True
 

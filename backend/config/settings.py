@@ -2,7 +2,7 @@ from celery.schedules import crontab # type: ignore
 from pathlib import Path
 from decouple import config # type: ignore
 
-COINGECKO_API_KEY = config('COINGECKO_API_KEY', default='CG-f4kYoZp3SPRTxpahp84CooT1')
+COINGECKO_API_KEY = config('COINGECKO_API_KEY', default='')  # Replace with your actual CoinGecko API key or set it in the environment variable
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 

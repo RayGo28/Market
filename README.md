@@ -1,27 +1,82 @@
 # Market
 
-Cryptocurrency market dashboard built with Django REST Framework, Celery, and Redis.
+Short description
 
-The application periodically fetches market data from the **CoinGecko API**, stores it in PostgreSQL, caches requests in Redis, and presents it via REST API and an interactive web interface.
+## Features
+- Cryptocurrency market dashboard
+- Coin details
+- Price history
+- Search / filtering / sorting
+- Background market updates
+- Redis caching
+- REST API
+- Swagger/OpenAPI
+
+## Architecture
+
+Frontend
+   ↓
+Django / DRF
+   ↓
+Redis cache
+   ↓
+PostgreSQL
+
+Celery Beat
+   ↓
+Celery Worker
+   ↓
+CoinGecko API
+   ↓
+PostgreSQL + Redis
 
 ## Tech Stack
 
-* **Frontend:** HTML5, CSS3, Vanilla JavaScript, Alpine.js
-* **Backend:** Python 3.11, Django, Django REST Framework
-* **Database:** PostgreSQL
-* **Cache & Broker:** Redis
-* **Background Tasks:** Celery, Celery Beat, Flower
-* **Documentation:** Swagger / OpenAPI
-* **Infrastructure:** Docker, Docker Compose
+...
 
----
+## Project Structure
 
-## Quick Start
+...
 
-### 1. Clone & Setup Environment
+## Requirements
 
-```bash
-git clone [https://github.com/RayGo28/Market.git](https://github.com/RayGo28/Market.git)
+...
+
+## Environment Variables
+
+...
+
+## Getting Started
+
+git clone ...
 cd Market
+cp backend/.env.example backend/.env
+docker compose up --build
+
+## Database Initialization
+
 docker compose exec web python manage.py migrate
-docker compose exec web python manage.py loaddata core_fixture.json
+docker compose exec web python manage.py fetch_coins
+
+## API
+
+GET /api/coins/
+GET /api/coins/{gecko_id}/
+GET /api/global/
+
+Swagger:
+http://localhost:8000/api/docs/
+
+OpenAPI:
+http://localhost:8000/api/schema/
+
+## Background Tasks
+
+Market updates every 120 sec
+Global data every 600 sec
+
+## Development
+
+...
+
+## License

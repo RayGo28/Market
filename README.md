@@ -29,7 +29,7 @@ The application fetches cryptocurrency market data from the CoinGecko API, store
    docker compose up --build -d
    3.
    docker compose exec web python manage.py migrate
-   docker compose exec web python manage.py loaddata core_fixture.json
+   docker compose exec web python manage.py loaddata core_data.json
    4.
    docker compose exec web python manage.py shell -c "from watcher.tasks import update_market_data; update_market_data.delay()"
    docker compose exec web python manage.py shell -c "from watcher.tasks import update_global_data; update_global_data.delay()"

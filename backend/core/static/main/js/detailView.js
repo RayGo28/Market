@@ -1,15 +1,17 @@
 import { getCoinDetailData, getCoins } from "./api.js";
 
 document.addEventListener('alpine:init', () => {
-    Alpine.data('coinDetail', (coinId) => ({
-        coin: {},
-        loading: true,
-        error: null,
-        timerId: null,
-        searchQuery: '',
-        searchResults: [],
-        showDropdown: false,
-        chart: null,
+    Alpine.data('coinDetail', (coinId) => {
+        let chart = null;
+
+        return {
+            coin: {},
+            loading: true,
+            error: null,
+            timerId: null,
+            searchQuery: '',
+            searchResults: [],
+            showDropdown: false,
 
         init() {
             console.log('coinDetail initialized with coinId:', coinId);
@@ -58,11 +60,9 @@ document.addEventListener('alpine:init', () => {
                     const updatedCoin = await getCoinDetailData(coinId);
                     this.coin = updatedCoin;
 
-                    if (!this.chart && Array.isArray(updatedCoin?.history_data) && updatedCoin.history_data.length > 0) {
-                        this.$nextTick(() => {
-                            this.renderChart(updatedCoin.history_data);
-                        });
-                    }
+                    this.$nextTick(() => {
+                        this.renderChart(updatedCoin?.history_data ?? []);
+                    });
                 } catch (error) {
                     console.error('Error updating coin data:', error);
                 }
@@ -120,36 +120,55 @@ document.addEventListener('alpine:init', () => {
         },
         renderChart(history = []) {
             const canvas = this.$refs.priceChart;
+            const safeHistory = Array.isArray(history) ? history : [];
 
-            if (!canvas || !Array.isArray(history) || history.length === 0) {
-                if (this.chart) {
-                    this.chart.destroy();
-                    this.chart = null;
+            if (!canvas) {
+                return;
+            }
+
+            if (safeHistory.length === 0) {
+                if (chart) {
+                    chart.destroy();
+                    chart = null;
                 }
                 return;
             }
 
-            if (this.chart) {
-                this.chart.destroy();
+            const sortedHistory = [...safeHistory].reverse();
+
+            const labels = sortedHistory.map(item =>
+                new Intl.DateTimeFormat('uk-UA', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                }).format(new Date(item.timestamp))
+            );
+
+            const values = sortedHistory.map(item => Number(item.price) || 0);
+
+            if (chart) {
+                if (!chart.data || !chart.data.datasets || !chart.data.datasets[0]) {
+                    chart.destroy();
+                    chart = null;
+                } else {
+                    chart.data.labels = labels;
+                    chart.data.datasets[0].data = values;
+                    chart.update('none');
+                }
+
+                return;
             }
 
-            const sortedHistory = [...history].reverse();
 
-            this.chart = new Chart(canvas, {
+            chart = new Chart(canvas, {
                 type: 'line',
                 data: {
-                    labels: sortedHistory.map(item =>
-                        new Intl.DateTimeFormat('uk-UA', {
-                            day: '2-digit',
-                            month: '2-digit',
-                            year: 'numeric',
-                            hour: '2-digit',
-                            minute: '2-digit'
-                        }).format(new Date(item.timestamp))
-                    ),
+                    labels,
                     datasets: [{
                         label: 'Price',
-                        data: sortedHistory.map(item => Number(item.price) || 0),
+                        data: values,
                         borderColor: '#4f8cff',
                         backgroundColor: 'rgba(79, 140, 255, 0.15)',
                         borderWidth: 2,
@@ -189,9 +208,11 @@ document.addEventListener('alpine:init', () => {
 
         destroy() {
             if (this.timerId) clearTimeout(this.timerId);
-            if (this.chart) {
-                this.chart.destroy();
+            if (chart) {
+                chart.destroy();
+                chart = null;
             }
         }
-    }));
+            };
+    });
 });

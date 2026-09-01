@@ -243,6 +243,18 @@
       </aside>
     </section>
 
+    <section class="panel chart-panel" style="margin-bottom: 16px;">
+      <div class="panel__head">
+        <div>
+          <h2 class="panel__title">Графік ціни</h2>
+          <p class="panel__subtitle">Динаміка ціни за останній період</p>
+        </div>
+      </div>
+      <div class="chart-container">
+        <canvas x-ref="priceChart"></canvas>
+      </div>
+    </section>
+
     <section class="panel history-panel">
       <div class="panel__head">
         <div>
@@ -270,7 +282,7 @@
           </thead>
 
           <tbody>
-            <template x-for="record in coin?.history_data ?? []" :key="record.id">
+            <template x-for="record in (coin?.history_data ?? []).slice(0, 10)" :key="record.id">
               <tr>
                 <td class="muted" x-text="dateFormat(record.timestamp)"></td>
                 <td class="table__right mono" x-text="priceFormat(record.price)">

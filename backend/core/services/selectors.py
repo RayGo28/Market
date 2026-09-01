@@ -17,7 +17,7 @@ def get_coin_detail_overview(gecko_id):
             )
     
     history = (
-        PriceHistory.objects.filter(coin=coin)[:10]
+        PriceHistory.objects.filter(coin=coin)[:50]
     )
 
     coin.history_records = history

@@ -9,6 +9,7 @@ document.addEventListener('alpine:init', () => {
         searchQuery: '',
         searchResults: [],
         showDropdown: false,
+        chart: null,
 
         init() {
             console.log('coinDetail initialized with coinId:', coinId);
@@ -38,6 +39,9 @@ document.addEventListener('alpine:init', () => {
             try {
                 console.log('Fetching coin data for:', coinId);
                 this.coin = await getCoinDetailData(coinId);
+                this.$nextTick(() => {
+                    this.renderChart(this.coin?.history_data ?? []);
+                });
                 console.log('Coin data loaded:', this.coin);
                 this.loading = false;
                 this.scheduleNextFetch();
@@ -51,7 +55,14 @@ document.addEventListener('alpine:init', () => {
         scheduleNextFetch() {
             this.timerId = setTimeout(async () => {
                 try {
-                    this.coin = await getCoinDetailData(coinId);
+                    const updatedCoin = await getCoinDetailData(coinId);
+                    this.coin = updatedCoin;
+
+                    if (!this.chart && Array.isArray(updatedCoin?.history_data) && updatedCoin.history_data.length > 0) {
+                        this.$nextTick(() => {
+                            this.renderChart(updatedCoin.history_data);
+                        });
+                    }
                 } catch (error) {
                     console.error('Error updating coin data:', error);
                 }
@@ -107,8 +118,80 @@ document.addEventListener('alpine:init', () => {
                 second: '2-digit'
             }).format(date);
         },
+        renderChart(history = []) {
+            const canvas = this.$refs.priceChart;
+
+            if (!canvas || !Array.isArray(history) || history.length === 0) {
+                if (this.chart) {
+                    this.chart.destroy();
+                    this.chart = null;
+                }
+                return;
+            }
+
+            if (this.chart) {
+                this.chart.destroy();
+            }
+
+            const sortedHistory = [...history].reverse();
+
+            this.chart = new Chart(canvas, {
+                type: 'line',
+                data: {
+                    labels: sortedHistory.map(item =>
+                        new Intl.DateTimeFormat('uk-UA', {
+                            day: '2-digit',
+                            month: '2-digit',
+                            year: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                        }).format(new Date(item.timestamp))
+                    ),
+                    datasets: [{
+                        label: 'Price',
+                        data: sortedHistory.map(item => Number(item.price) || 0),
+                        borderColor: '#4f8cff',
+                        backgroundColor: 'rgba(79, 140, 255, 0.15)',
+                        borderWidth: 2,
+                        pointRadius: 3,
+                        pointHoverRadius: 6,
+                        pointHitRadius: 10,
+                        tension: 0.25
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        mode: 'nearest',
+                        intersect: false
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        x: {
+                            ticks: {
+                                maxTicksLimit: 7
+                            }
+                        },
+                        y: {
+                            ticks: {
+                                callback: value => `$${Number(value).toFixed(2)}`
+                            }
+                        }
+                    }
+                }
+            });
+        },
+
         destroy() {
             if (this.timerId) clearTimeout(this.timerId);
+            if (this.chart) {
+                this.chart.destroy();
+            }
         }
     }));
 });

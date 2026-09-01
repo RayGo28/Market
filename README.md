@@ -27,13 +27,6 @@ docker compose up --build -d
 docker compose exec web python manage.py migrate
 docker compose exec web python manage.py fetch_coins
 ```
-
-Populate the initial market and global data immediately:
-
-```bash
-docker compose exec web python manage.py shell -c "from watcher.tasks import update_market_data, update_global_data; update_market_data.delay(); update_global_data.delay()"
-```
-
 Open:
 
 - App: `http://localhost:8000`

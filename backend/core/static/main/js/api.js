@@ -1,6 +1,9 @@
 export async function getCoins(search = '') {
+    const url = search
+        ? `/api/coins/?search=${encodeURIComponent(search)}`
+        : '/api/coins/';
 
-    const response = await fetch(`/api/coins/`);
+    const response = await fetch(url);
 
     if (!response.ok) {
         throw new Error(`Server error: ${response.status}`);

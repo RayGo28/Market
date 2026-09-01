@@ -23,7 +23,32 @@
       </nav>
 
       <div class="topbar__actions">
-        <input class="search" type="search" placeholder="Пошук монети…" />
+        <input
+          type="search"
+          x-model="searchQuery"
+          class="search"
+          @input.debounce.300ms="fetchSearchResults()"
+          placeholder="Пошук монети…"
+          aria-label="Пошук монети"
+        />
+        <div
+            class="search-dropdown"
+            x-show="showDropdown"
+            @click.outside="showDropdown = false"
+            x-cloak
+        >
+            <ul class="dropdown-list">
+                <template x-for="coin in searchResults" :key="coin.id">
+                    <li class="dropdown-item">
+                        <a :href="`/coin/${coin.gecko_id}`" class="dropdown-link">
+                            <img :src="coin.image_url" class="dropdown-icon" alt="icon">
+                            <span x-text="coin.name"></span>
+                            <span class="muted" x-text="coin.symbol.toUpperCase()"></span>
+                        </a>
+                    </li>
+                </template>
+            </ul>
+        </div>
         <button class="btn btn--primary" type="button">
           Підключити гаманець
         </button>

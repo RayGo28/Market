@@ -35,16 +35,11 @@ document.addEventListener('alpine:init', () => {
             }
 
             try {
-                const response = await fetch(`/api/coins/?search=${encodeURIComponent(query)}`);
-                if (!response.ok) {
-                    throw new Error(`Search error: ${response.status}`);
-                }
-
-                const data = await response.json();
+                const data = await getCoins(query);
                 this.searchResults = data.slice(0, 6);
                 this.showDropdown = this.searchResults.length > 0;
             } catch (error) {
-                console.error('Помилка пошуку:', error);
+                console.error('Помилка пошуку на детальній сторінці:', error);
                 this.searchResults = [];
                 this.showDropdown = false;
             }

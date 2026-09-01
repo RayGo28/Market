@@ -1,4 +1,4 @@
-import { getCoinDetailData } from "./api.js";
+import { getCoinDetailData, getCoins } from "./api.js";
 
 document.addEventListener('alpine:init', () => {
     Alpine.data('coinDetail', (coinId) => ({
@@ -6,10 +6,32 @@ document.addEventListener('alpine:init', () => {
         loading: true,
         error: null,
         timerId: null,
+        searchQuery: '',
+        searchResults: [],
+        showDropdown: false,
 
         init() {
             console.log('coinDetail initialized with coinId:', coinId);
             this.fetchCoinData();
+        },
+
+        async fetchSearchResults() {
+            const query = this.searchQuery.trim();
+            if (!query) {
+                this.searchResults = [];
+                this.showDropdown = false;
+                return;
+            }
+
+            try {
+                const data = await getCoins(query);
+                this.searchResults = data.slice(0, 6);
+                this.showDropdown = this.searchResults.length > 0;
+            } catch (error) {
+                console.error('Помилка пошуку на детальній сторінці:', error);
+                this.searchResults = [];
+                this.showDropdown = false;
+            }
         },
 
         async fetchCoinData() {

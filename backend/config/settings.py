@@ -123,6 +123,10 @@ CELERY_BEAT_SCHEDULE = {
         'task': 'watcher.tasks.update_global_data',
         'schedule' : 600,
     },
+    'cleanup_old_data' : {
+        'task': 'watcher.tasks.cleanup_old_data',
+        'schedule' : 86400,
+    },
 }
 
 CELERY_BROKER_URL = 'redis://redis:6379/0'

@@ -1,5 +1,7 @@
 from decimal import Decimal, InvalidOperation
 
+from django.db import transaction
+
 from core.services.coingecko import fetch_market_data, fetch_global_data
 from core.models import Coin,CoinCurrentData,PriceHistory
 from django.core.cache import cache
@@ -63,13 +65,14 @@ def save_market_data(records_data):
     ]
     
     if records_data:
-        PriceHistory.objects.bulk_create([PriceHistory(**item) for item in records_data])
-        CoinCurrentData.objects.bulk_create(
-                            [CoinCurrentData(**item) for item in records_data],
-                            update_conflicts=True,
-                            unique_fields=['coin'],
-                            update_fields=update_fields
-                        )
+        with transaction.atomic():
+            PriceHistory.objects.bulk_create([PriceHistory(**item) for item in records_data])
+            CoinCurrentData.objects.bulk_create(
+                                [CoinCurrentData(**item) for item in records_data],
+                                update_conflicts=True,
+                                unique_fields=['coin'],
+                                update_fields=update_fields
+                            )
                 
         logger.info(f"Data is updated for {len(records_data)} coins.")
         

@@ -6,7 +6,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data/
     environment:
-      - TZ=Europe/Kosice
+      - TZ=Europe/Kyiv
       - POSTGRES_DB=engine_db
       - POSTGRES_USER=user
       - POSTGRES_PASSWORD=password
@@ -47,7 +47,7 @@ services:
       - ./backend:/code
     working_dir: /code
     environment:
-      - TZ=Europe/Bratislava
+      - TZ=Europe/Kyiv
       - PYTHONPATH=/code
     depends_on:
       db:
@@ -62,7 +62,7 @@ services:
       - ./backend:/code
     working_dir: /code
     environment:
-      - TZ=Europe/Bratislava
+      - TZ=Europe/Kyiv
       - PYTHONPATH=/code
     depends_on:
       db:

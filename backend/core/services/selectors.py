@@ -1,6 +1,7 @@
 from core.models import PriceHistory,Coin
 from django.db.models import Count
 from django.db.models import Avg, Max, Min
+from django.shortcuts import get_object_or_404
 def get_coins_market_overview():
     coins = Coin.objects.filter(is_active=True).select_related("current_data")
     
@@ -8,10 +9,10 @@ def get_coins_market_overview():
 
     
 def get_coin_detail_overview(gecko_id):
-    coin = Coin.objects.select_related("current_data").get(
-                gecko_id=gecko_id,
-                is_active=True
-            )
+    coin = get_object_or_404(Coin.objects.select_related("current_data"),
+            gecko_id=gecko_id,
+            is_active=True,
+        )
     
     history = (
         PriceHistory.objects.filter(coin=coin)[:50]

@@ -6,7 +6,7 @@ COINGECKO_API_KEY = config('COINGECKO_API_KEY', default='')  # Replace with your
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = config('SECRET_KEY', default='django-insecure-!@#%$^&*()_+1234567890')
+SECRET_KEY = config('SECRET_KEY', default='')
 
 DEBUG = True
 
@@ -61,11 +61,11 @@ WSGI_APPLICATION = 'config.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'engine_db',
-        'USER': 'user',
-        'PASSWORD': 'password',
-        'HOST': 'db',
-        'PORT': '5432',
+        'NAME': config("POSTGRES_DB"),
+        'USER': config("POSTGRES_USER"),
+        'PASSWORD': config("POSTGRES_PASSWORD"),
+        'HOST':  config("POSTGRES_HOST", default="db"),
+        'PORT': config("POSTGRES_PORT", default="5432"),
     }
 }
 
@@ -102,10 +102,6 @@ DATETIME_FORMAT = 'd M Y, H:i'
 SHORT_DATETIME_FORMAT = 'd.m.Y H:i'
 
 STATIC_URL = 'static/'
-
-STATICFILES_DIRS = [
-    BASE_DIR / 'core/static',
-]
 
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 

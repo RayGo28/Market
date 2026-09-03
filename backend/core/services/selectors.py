@@ -2,10 +2,7 @@ from core.models import PriceHistory,Coin
 from django.db.models import Count
 from django.db.models import Avg, Max, Min
 def get_coins_market_overview():
-    coins = Coin.objects.filter(is_active=True).select_related("current_data").only(
-        "id","name","symbol","current_data__price","current_data__market_cap","current_data",
-        "current_data__total_volume","current_data__price_change_percentage_24h",
-    )
+    coins = Coin.objects.filter(is_active=True).select_related("current_data")
     
     return coins
 

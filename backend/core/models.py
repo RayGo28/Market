@@ -12,6 +12,7 @@ class Coin(models.Model):
     class Meta:
         verbose_name = "Coin"
         verbose_name_plural = "Coins"
+        indexes = [models.Index(fields=['is_active'])]
     
     def __str__(self):
         return f"{self.name} ({self.symbol})"

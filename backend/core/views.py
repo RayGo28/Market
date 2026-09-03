@@ -40,7 +40,7 @@ class Coins(ReadOnlyModelViewSet):
             serializer = self.get_serializer(queryset, many=True)
             data = serializer.data
             
-            cache.set(cache_key, data, 65)
+            cache.set(cache_key, data, 125)
         
         search_query = request.query_params.get('search', '').strip().lower()
         if search_query:

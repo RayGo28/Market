@@ -107,12 +107,12 @@ def sync_global_data():
         
     if isinstance(raw_data, dict):
         global_data = {
-            "total_market_cap" : raw_data["total_market_cap"]["usd"],
-            "total_volume" : raw_data["total_volume"]["usd"],
-            "market_cap_percentage_btc" : raw_data["market_cap_percentage"]["btc"],
+            "total_market_cap" : raw_data.get("total_market_cap", {}).get("usd", 0),
+            "total_volume" : raw_data.get("total_volume", {}).get("usd", 0),
+            "market_cap_percentage_btc" : raw_data.get("market_cap_percentage", {}).get("btc", 0),
             "active_coins_count" : active_coins_count,   
-            "market_cap_change_percentage_24h_usd" : raw_data["market_cap_change_percentage_24h_usd"],
-            "volume_change_percentage_24h_usd" : raw_data["volume_change_percentage_24h_usd"]
+            "market_cap_change_percentage_24h_usd" : raw_data.get("market_cap_change_percentage_24h_usd", 0),
+            "volume_change_percentage_24h_usd" : raw_data.get("volume_change_percentage_24h_usd", 0)
         }
         
     if global_data:

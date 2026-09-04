@@ -1,18 +1,18 @@
 # Market
 
-Cryptocurrency market dashboard built with Django REST Framework. The app collects market data from CoinGecko, stores it in PostgreSQL, caches ready-to-serve responses in Redis, and updates the data in the background with Celery.
+Криптовалютний ринковий дашборд, створений на **Django REST Framework**. Застосунок отримує ринкові дані з **CoinGecko**, зберігає їх у **PostgreSQL**, кешує готові відповіді в **Redis** та оновлює дані у фоновому режимі за допомогою **Celery**.
 
-## Tech Stack
+## Технологічний стек
 
-- Python 3.11, Django, Django REST Framework
-- PostgreSQL, Redis
-- Celery, Celery Beat, Flower
-- HTML, CSS, JavaScript, Alpine.js
-- Docker, Docker Compose
-- Swagger / OpenAPI
-- CoinGecko API
+* Python 3.11, Django, Django REST Framework
+* PostgreSQL, Redis
+* Celery, Celery Beat, Flower
+* HTML, CSS, JavaScript, Alpine.js
+* Docker, Docker Compose
+* Swagger / OpenAPI
+* CoinGecko API
 
-## Getting Started
+## Запуск
 
 ```bash
 git clone https://github.com/RayGo28/Market.git
@@ -20,123 +20,92 @@ cd Market
 cp backend/.env.example backend/.env
 ```
 
-Set your `COINGECKO_API_KEY` in `backend/.env`, then start the containers:
+Вкажіть свій `COINGECKO_API_KEY` у `backend/.env`, після чого запустіть контейнери:
 
 ```bash
 docker compose up --build -d
 docker compose exec web python manage.py migrate
 docker compose exec web python manage.py fetch_coins
 ```
-Open:
 
-- App: `http://localhost:8000`
-- Swagger: `http://localhost:8000/api/docs/`
-- Flower: `http://localhost:5555`
+Відкрийте:
 
-## Features
+* Застосунок: `http://localhost:8000`
+* Swagger: `http://localhost:8000/api/docs/`
+* Flower: `http://localhost:5555`
 
-- Cryptocurrency market overview and coin details
-- Search, filtering, sorting and pagination
-- Historical price data and market statistics
-- REST API with OpenAPI documentation
-- Redis response caching
-- Background market updates with Celery
-- Automatic cleanup of price history older than 30 days
+## Можливості
+
+* Перегляд ринку криптовалют та інформації про окремі монети
+* Пошук, фільтрація, сортування та пагінація
+* Історичні дані про ціни та ринкова статистика
+* REST API з документацією OpenAPI
+* Кешування відповідей у Redis
+* Фонове оновлення даних за допомогою Celery
+* Автоматичне видалення історичних даних старше 30 днів
 
 ---
 
-## Architecture
+## Архітектура
 
-```mermaid
-flowchart TD
-    A[CoinGecko API] --> B[Celery Worker]
-    B --> C[PostgreSQL]
-    B --> D[Redis Cache]
+## Потік даних
 
-    E[Frontend] --> F[Django / DRF]
-    F --> D
-    D --> F
-    F --> E
+## Кешування
 
-    G[Celery Beat] --> B
-    H[Flower] --> B
-```
+Застосунок кешує серіалізовані дані API в Redis, тому звичайні запити не звертаються щоразу до PostgreSQL і не виконують повторну серіалізацію DRF.
 
-## Data Flow
+* `coin_list_cache` — дані огляду ринку
+* `coin_detail_<gecko_id>` — детальні дані окремої монети
+* `global_data` — загальна статистика ринку
 
-```mermaid
-sequenceDiagram
-    participant CG as CoinGecko
-    participant C as Celery
-    participant DB as PostgreSQL
-    participant R as Redis
-    participant API as Django REST API
-    participant UI as Browser
+Кеш оновлюється фоновими задачами синхронізації та також відновлюється API, якщо відповідного запису в кеші немає.
 
-    C->>CG: Fetch market/global data
-    CG-->>C: JSON response
-    C->>DB: Store price history/current data
-    C->>R: Cache serialized responses
-    UI->>API: GET /api/coins/
-    API->>R: Read cached data
-    R-->>API: Cached JSON
-    API-->>UI: Response
-```
+## Фонові задачі
 
-## Caching
+| **Задача**           | **Розклад** | **Призначення**                                                                         |
+| -------------------- | ----------- | --------------------------------------------------------------------------------------- |
+| `update_market_data` | Кожні 120 с | Отримує ринкові дані, зберігає історичні та поточні значення й оновлює кеш списку монет |
+| `update_global_data` | Кожні 600 с | Отримує та кешує загальну статистику ринку                                              |
+| `cleanup_old_data`   | Щодня       | Видаляє історичні дані про ціни старше 30 днів                                          |
 
-The application caches serialized API data in Redis so normal reads do not repeatedly query PostgreSQL or run DRF serialization.
-
-- `coin_list_cache` — market overview data
-- `coin_detail_<gecko_id>` — detailed data for an individual coin
-- `global_data` — global market statistics
-
-Cache data is refreshed by background synchronization tasks and also rebuilt by the API when a cache entry is missing.
-
-## Background Tasks
-
-| Task | Schedule | Purpose |
-| --- | --- | --- |
-| `update_market_data` | Every 120s | Fetch market data, store history/current values and refresh the coin-list cache |
-| `update_global_data` | Every 600s | Fetch and cache global market statistics |
-| `cleanup_old_data` | Daily | Remove price history older than 30 days |
-
-Celery retries CoinGecko requests on request errors with exponential backoff and up to three retries.
+Celery повторює запити до CoinGecko у разі помилок запиту, використовуючи експоненційну затримку та до трьох повторних спроб.
 
 ## REST API
 
-| Method | Endpoint | Description |
-| --- | --- | --- |
-| `GET` | `/api/coins/` | List coins, with optional search |
-| `GET` | `/api/coins/<gecko_id>/` | Coin details, history and statistics |
-| `GET` | `/api/global/` | Global market statistics |
-| `GET` | `/api/schema/` | OpenAPI schema |
-| `GET` | `/api/docs/` | Swagger UI |
+| **Метод** | **Ендпоінт**             | **Опис**                                              |
+| --------- | ------------------------ | ----------------------------------------------------- |
+| `GET`     | `/api/coins/`            | Список монет з можливістю пошуку                      |
+| `GET`     | `/api/coins/<gecko_id>/` | Детальна інформація про монету, історію та статистику |
+| `GET`     | `/api/global/`           | Загальна статистика ринку                             |
+| `GET`     | `/api/schema/`           | OpenAPI-схема                                         |
+| `GET`     | `/api/docs/`             | Swagger UI                                            |
 
-The main page refreshes market and global data through HTTP requests every 5 seconds, while the backend itself updates the source data on a slower Celery schedule. This keeps the client responsive without making CoinGecko requests per user.
+Головна сторінка оновлює ринкові та глобальні дані через HTTP-запити кожні 5 секунд, тоді як бекенд оновлює вихідні дані за допомогою Celery з більшим інтервалом. Це дозволяє підтримувати швидкий інтерфейс без виконання запитів до CoinGecko для кожного користувача.
 
-## Project Structure
+## Структура проєкту
 
 ```text
 Market/
 ├── backend/
-│   ├── config/              # Django settings and Celery configuration
+│   ├── config/              # Налаштування Django та конфігурація Celery
 │   ├── core/
-│   │   ├── management/      # Custom management commands
-│   │   ├── services/        # CoinGecko integration, selectors, data sync
-│   │   ├── static/           # Frontend JavaScript and CSS
-│   │   ├── templates/        # Django templates
+│   │   ├── management/      # Кастомні management-команди
+│   │   ├── services/        # Інтеграція з CoinGecko, selectors, синхронізація даних
+│   │   ├── static/           # JavaScript та CSS
+│   │   ├── templates/        # Django-шаблони
 │   │   ├── models.py
 │   │   ├── serializers.py
 │   │   ├── urls.py
 │   │   └── views.py
-│   └── watcher/              # Celery tasks
+│   └── watcher/              # Celery-задачі
 ├── docker-compose.yml
 └── README.md
 ```
 
-## Design Notes
+## Особливості проєктування
 
-The project separates responsibilities between Django API/views, service-layer data access and synchronization, Celery background processing, PostgreSQL persistence, and Redis caching. `PriceHistory` stores historical snapshots, while `CoinCurrentData` keeps the latest state for fast overview/detail queries.
+Проєкт розділяє відповідальність між Django API/views, сервісним шаром для роботи з даними та синхронізацією, фоновою обробкою Celery, зберіганням у PostgreSQL та кешуванням у Redis.
 
-The frontend handles presentation concerns such as sorting, filtering and pagination, while the backend exposes a documented read-only API for the market data.
+`PriceHistory` зберігає історичні знімки даних, тоді як `CoinCurrentData` містить актуальний стан монети для швидких запитів огляду та деталей.
+
+Фронтенд відповідає за відображення, сортування, фільтрацію та пагінацію, а бекенд надає документований read-only API для роботи з ринковими даними.
